@@ -38,7 +38,8 @@ async function run() {
     console.log('database connected successfully');
     const OurCollection = database.collection('carcollection');
     const bookingsCollection = database.collection('bookings');
-    const adminCollection = database.collection('Admin');
+    const adminCollection = database.collection('admin');
+    const clientFeedbackCollection = database.collection('clientFeedback');
 
     console.log('collection connected successfully');
     app.get('/carcollection', async (req, res) => {
@@ -55,47 +56,29 @@ async function run() {
       console.log(result);
       res.send('post hitted');
     });
+    // sending client feedback to db
+    app.post('/sendClientFeedback', (req, res) => {
+      const { img, name, designationAndCompanyName, feedback } = req.body;
+      clientFeedbackCollection
+        .insertOne({ img, name, designationAndCompanyName, feedback })
+        .then(() => {
+          res.end();
+        });
+    });
 
-    // // get single product
-    // app.get('/singleProduct/:id', async (req, res) => {
-    //   const result = await OurCollection.find({
-    //     _id: ObjectId(req.params.id),
-    //   }).toArray();
-    //   res.send(result[0]);
-    // });
-    // // cofirm order
-    // app.post('/confirmOrder', async (req, res) => {
-    //   const result = await bookingsCollection.insertOne(req.body);
-    //   res.send(result);
-    // });
-
-    // // my confirmOrder
-
-    // app.get('/myOrders/:email', async (req, res) => {
-    //   const result = await bookingsCollection
-    //     .find({ email: req.params.email })
-    //     .toArray();
-    //   res.send(result);
-    // });
-    /// delete order
-
-    // app.delete('/delteOrder/:id', async (req, res) => {
-    //   const result = await bookingsCollection.deleteOne({
-    //     _id: ObjectId(req.params.id),
-    //   });
-    //   res.send(result);
-    // });
-    // app.post('/users', async (req, res) => {
-    //   const user = req.body;
-    //   const result = await usersCollection.insertOne(user);
-    //   console.log(result);
-    //   res.json(result);
-    // });
+    // get client feedback to db
+    app.get('/getClientFeedback', (req, res) => {
+      console.log('hello');
+      clientFeedbackCollection.find({}).toArray((error, documents) => {
+        res.send(documents);
+      });
+    });
 
     // Add admin data in db
     app.post('/addAdmin', (req, res) => {
       const { email } = req.body;
       adminCollection.insertOne({ email }).then(() => {
+        console.log('hello');
         res.end();
       });
     });
