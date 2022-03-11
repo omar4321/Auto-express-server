@@ -2,15 +2,10 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
-const admin = require('firebase-admin');
 const port = process.env.PORT || 5000;
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
-const serviceAccount = require('./autoexpress2-c0800-firebase-adminsdk.json');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
 app.use(cors());
 app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ksj3s.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -20,17 +15,6 @@ const client = new MongoClient(uri, {
 });
 // console.
 
-// async function verifyToken(req, res, next) {
-//   if (req.headers?.authorization?.startsWith('Bearer ')) {
-//     const token = req.headers.authorization.split(' ')[1];
-
-//     try {
-//       const decodedUser = await admin.auth().verifyIdToken(token);
-//       req.decodedEmail = decodedUser.email;
-//     } catch {}
-//   }
-//   next();
-// }
 async function run() {
   try {
     await client.connect();
@@ -48,6 +32,7 @@ async function run() {
       const carcollection = await cursor.toArray();
       res.send(carcollection);
     });
+
     //post api
     app.post('/carcollection', async (req, res) => {
       const carcollection = req.body;
@@ -56,6 +41,7 @@ async function run() {
       console.log(result);
       res.send('post hitted');
     });
+
     // sending client feedback to db
     app.post('/sendClientFeedback', (req, res) => {
       const { img, name, designationAndCompanyName, feedback } = req.body;
